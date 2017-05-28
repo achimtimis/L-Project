@@ -1,0 +1,65 @@
+package app.endpoint;
+
+
+import endpoints.IUserServiceEndpoint;
+import models.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import app.service.UserService;
+
+import java.util.List;
+
+/**
+ * Created by achy_ on 11/24/2016.
+ */
+@RestController
+@CrossOrigin
+public class UserController implements IUserServiceEndpoint {
+
+
+    @Autowired
+    private UserService userService;
+
+    @Override
+    @RequestMapping(method = RequestMethod.GET)
+    public List<User> getAllUsers() {
+
+        List<User> users = userService.getAllUsers();
+        return users;
+    }
+
+    @Override
+    public User logIn(String username, String password) {
+        return userService.logIn(username, password);
+    }
+
+    @Override
+    public User createUser(User user) {
+        User result = null;
+        try {
+            return userService.createUser(user);
+        } catch (Exception e) {
+            //
+        }
+        return null;
+    }
+
+    @Override
+    public User delete(Long id) {
+        User existingUser = userService.deleteUser(id);
+        return existingUser;
+    }
+
+    @Override
+    public User update(Long id, User user) {
+        return userService.updateUser(id, user);
+
+    }
+
+    @Override
+    public User getUser(@PathVariable("id") Long id) {
+        return userService.getUserById(id);
+    }
+
+
+}

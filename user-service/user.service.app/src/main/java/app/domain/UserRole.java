@@ -1,4 +1,4 @@
-package com.lproject.userservice.app.domain;
+package app.domain;
 
 public enum UserRole {
     NORMAL_USER, ADMIN

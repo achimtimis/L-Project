@@ -4,18 +4,22 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.lproject</groupId>
-	<artifactId>user-service</artifactId>
+	<artifactId>user-app.service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<modules>
+		<module>user.app.service.app</module>
+		<module>user.app.service.api</module>
+	</modules>
+	<packaging>pom</packaging>
 
-	<name>user-service</name>
-	<description>Demo project for Spring Boot</description>
+	<name>user-app.service</name>
+	<description>User Service</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.5.3.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from app.repository -->
 	</parent>
 
 	<properties>
