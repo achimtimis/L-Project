@@ -21,4 +21,7 @@ public class UserEntity implements Serializable {
     private String password;
 
     private UserRole role;
+
+    @OneToOne
+    private UserProfile userProfile;
 }

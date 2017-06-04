@@ -1,17 +1,15 @@
 package app.endpoint;
 
 
+import app.service.UserService;
 import endpoints.IUserServiceEndpoint;
 import models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import app.service.UserService;
 
 import java.util.List;
 
-/**
- * Created by achy_ on 11/24/2016.
- */
+
 @RestController
 @CrossOrigin
 public class UserController implements IUserServiceEndpoint {

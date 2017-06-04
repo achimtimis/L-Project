@@ -1,9 +1,10 @@
 package app.service;
 
 import app.domain.UserEntity;
+import app.domain.UserProfile;
 import app.domain.UserRole;
-import models.User;
 import app.repository.IUserEntityDao;
+import models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,7 @@ public class UserService {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         userRepository.findAll().stream()
-                .forEach(userEntity -> users.add(new User(userEntity.getId(), userEntity.getUsername(),
-                        userEntity.getPassword(), userEntity.getRole().toString())));
+                .forEach(userEntity -> users.add(mapUser(userEntity)));
         return users;
     }
 
@@ -32,7 +32,10 @@ public class UserService {
     }
 
     private User mapUser(UserEntity userEntity) {
-        return new User(userEntity.getId(), userEntity.getUsername(), userEntity.getPassword(), userEntity.getRole().toString());
+        return new User(userEntity.getId(), userEntity.getUsername(),
+                userEntity.getPassword(), userEntity.getRole().toString(), userEntity.getUserProfile().getFistName(),
+                userEntity.getUserProfile().getLastname(), userEntity.getUserProfile().getEmail(),
+                userEntity.getUserProfile().getDetails());
     }
 
     public User createUser(User user) {
@@ -40,7 +43,9 @@ public class UserService {
     }
 
     private UserEntity mapUser(User user) {
-        return new UserEntity(user.getId(), user.getUsername(), user.getPassword(), UserRole.valueOf(user.getRole()));
+        return new UserEntity(user.getId(), user.getUsername(), user.getPassword(),
+                UserRole.valueOf(user.getRole()),
+                new UserProfile(null, user.getEmail(), user.getFirstName(), user.getLastName(), user.getDetails()));
     }
 
     public User deleteUser(Long id) {
@@ -54,7 +59,7 @@ public class UserService {
     public User updateUser(Long id, User user) {
         User response = null;
         UserEntity userEntity = userRepository.findOne(id);
-        if (userEntity != null){
+        if (userEntity != null) {
             response = mapUser(userRepository.saveAndFlush(mapUser(user)));
         }
         return response;
