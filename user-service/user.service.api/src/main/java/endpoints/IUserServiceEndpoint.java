@@ -6,26 +6,30 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/users")
 public interface IUserServiceEndpoint {
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @ResponseBody
     List<User> getAllUsers();
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/users/login", method = RequestMethod.GET)
+    @ResponseBody
     User logIn(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password);
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    @ResponseBody
     User createUser(@RequestBody User user);
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    User delete(@PathVariable Long id);
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    User delete(@PathVariable(value = "id") Long id);
 
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    User update(@PathVariable Long id, @RequestBody User user);
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    User update(@PathVariable(value = "id") Long id, @RequestBody User user);
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    User getUser(@PathVariable("id") Long id);
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    User getUser(@PathVariable(value = "id") Long id);
 
 }
 
