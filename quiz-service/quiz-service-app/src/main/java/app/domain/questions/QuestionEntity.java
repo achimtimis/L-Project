@@ -24,13 +24,16 @@ public class QuestionEntity {
 
     private String questionText;
 
-    @ElementCollection
+//    @ManyToOne(cascade=CascadeType.ALL)
+//    private QuizEntity quiz;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<Integer, String> options = new HashMap<>();
 
     public void addOption(String option) {
         if (options.keySet().size() > 0) {
             int position = Collections.max(options.keySet());
-            options.put(position++, option);
+            options.put(++position, option);
         } else {
             options.put(1, option);
         }

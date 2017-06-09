@@ -1,4 +1,4 @@
-package app.domain.questions;
+package models.utils;
 
 /**
  * Created by achy_ on 6/7/2017.
