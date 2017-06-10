@@ -49,22 +49,25 @@ public class QuizRepositoryTest {
 
 
     @Test
-    @Ignore
+//    @Ignore
     public void testQuestionCreation(){
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setQuestionText("Who are you?");
         questionEntity.addOption("me");
         questionEntity.addOption("myself");
 
-
+        QuestionCorrectAnswer qca = new QuestionCorrectAnswer();
+//        qca.setQuestion(q);
+        qca.setValidAnswers(Arrays.asList(1));
+        questionEntity.setQuestionCorrectAnswer(qca);
         QuestionEntity q = iQuestionEntityDao.save(questionEntity);
 
-        QuestionCorrectAnswer qca = new QuestionCorrectAnswer();
-        qca.setQuestion(q);
-        qca.setValidAnswers(Arrays.asList(1));
-        QuestionCorrectAnswer questionCorrectAnswer = iQuestionCorrectAnswerDao.saveAndFlush(qca);
+//        QuestionCorrectAnswer qca = new QuestionCorrectAnswer();
+//        qca.setQuestion(q);
+//        qca.setValidAnswers(Arrays.asList(1));
+//        QuestionCorrectAnswer questionCorrectAnswer = iQuestionCorrectAnswerDao.saveAndFlush(qca);
 
-        Assert.assertTrue(iQuestionCorrectAnswerDao.findAll().contains(questionCorrectAnswer));
+//        Assert.assertTrue(iQuestionCorrectAnswerDao.findAll().contains(questionCorrectAnswer));
 
         QuizEntity quizEntity = new QuizEntity();
         quizEntity.setQuiz_questions(Arrays.asList(q));
@@ -87,7 +90,7 @@ public class QuizRepositoryTest {
 
     }
     @Test
-    @Ignore
+//    @Ignore
     public void testAnswer(){
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setQuestionText("Who are you?");
@@ -124,10 +127,10 @@ public class QuizRepositoryTest {
         QuizResponseEntity saved = iQuizResponseEntiyDao.saveAndFlush(quizResponseEntity);
 
         Assert.assertTrue(saved.getAnswers().size() ==2);
-        Assert.assertTrue(saved.getQuiz().getQuiz_questions().size() == 1);
+        Assert.assertTrue(saved.getQuiz().getQuiz_questions().size() == 2);
         List<QuestionEntity> list = new ArrayList<QuestionEntity>(saved.getQuiz().getQuiz_questions());
         Assert.assertTrue(list.get(0).getQuestionText().contains("you"));
-//        Assert.assertTrue(saved.getAnswers().get(0).getQuizResponse().getId() == saved.getId());
+        Assert.assertTrue(saved.getAnswers().get(0).getQuizResponse().getId() == saved.getId());
         goodQuizId = saved.getId();
 
     }
@@ -176,7 +179,7 @@ public class QuizRepositoryTest {
         answerEntities.remove(0);
         qre.setAnswers(answerEntities);
         iQuizResponseEntiyDao.saveAndFlush(qre);
-//        iAnswerEntityDao.delete(ans1.getId());
+        iAnswerEntityDao.delete(ans1.getId());
         QuizResponseEntity qre2 = iQuizResponseEntiyDao.findOne(qre.getId());
         Assert.assertTrue(beforeDeletion == (qre2.getAnswers().size() - 1));
     }

@@ -7,10 +7,13 @@ import app.repository.IQuestionEntityDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 /**
  * Created by achy_ on 6/10/2017.
  */
 @Service
+@Transactional
 public class QuestionService {
 
     @Autowired
@@ -31,16 +34,11 @@ public class QuestionService {
         return questionEntityDao.getOne(id);
     }
 
-    public QuestionCorrectAnswer addCorrectAnswerToQuestion(QuestionCorrectAnswer qca, QuestionEntity q){
+    public QuestionEntity addCorrectAnswerToQuestion(QuestionCorrectAnswer qca, QuestionEntity q){
         QuestionEntity questionEntity  = questionEntityDao.findOne(q.getId());
         if (questionEntity != null){
             // add correct answer
-            qca.setQuestion(q);
-        }
-        return questionCorrectAnswerDao.saveAndFlush(qca);
-    }
-
-    public void updateCorrectAnswer(){
-
+            questionEntity.setQuestionCorrectAnswer(qca);        }
+        return questionEntityDao.saveAndFlush(questionEntity);
     }
 }

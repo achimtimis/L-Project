@@ -19,9 +19,9 @@ public class QuestionCorrectAnswer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_id", referencedColumnName = "question_id")
-    private QuestionEntity question;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "question_id", referencedColumnName = "question_id")
+//    private QuestionEntity question;
 
     @ElementCollection(targetClass=Integer.class)
     private List<Integer> validAnswers;

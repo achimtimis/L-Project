@@ -9,6 +9,9 @@ import java.util.List;
  */
 @Data
 public class Question {
+
+    private Long id;
+
     private String questionText;
 
     private List<QuestionOptions> questionOptions;

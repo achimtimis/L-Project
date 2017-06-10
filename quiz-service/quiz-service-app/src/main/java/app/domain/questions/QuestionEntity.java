@@ -27,6 +27,10 @@ public class QuestionEntity {
 //    @ManyToOne(cascade=CascadeType.ALL)
 //    private QuizEntity quiz;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "quest_correct_answer_id")
+    private QuestionCorrectAnswer questionCorrectAnswer;
+
     @ElementCollection(fetch = FetchType.EAGER)
     private Map<Integer, String> options = new HashMap<>();
 
