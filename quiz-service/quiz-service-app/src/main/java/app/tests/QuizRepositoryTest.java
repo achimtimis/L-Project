@@ -5,9 +5,10 @@ import app.domain.answers.QuizResponseEntity;
 import app.domain.questions.QuestionCorrectAnswer;
 import app.domain.questions.QuestionEntity;
 import app.domain.questions.QuizEntity;
-import app.domain.questions.QuizTypeEnum;
-import app.domain.topic.TopicEnum;
+
 import app.repository.*;
+import models.utils.QuizTypeEnum;
+import models.utils.TopicEnum;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

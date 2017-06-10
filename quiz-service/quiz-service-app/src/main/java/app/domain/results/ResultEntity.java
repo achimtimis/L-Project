@@ -29,8 +29,10 @@ public class ResultEntity {
     @Column(name = "total_score")
     private double totalScore;
 
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<Long, String> observations = new HashMap<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<Long, String> scorePerQuestion = new HashMap<>();
 
     private String extraFeedback;
