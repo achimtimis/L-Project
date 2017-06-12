@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class QuizResponseRequest {
 
-    // the students responses for a given quiz
+    // POST the students responses for a given quiz
     private Long id;
 
     private String userId;

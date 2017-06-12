@@ -39,5 +39,9 @@ public class QuizEntity {
 
     private int timer;
 
+    private double minimumScoreToPass;
+
+    private String creatorId;
+
 
 }

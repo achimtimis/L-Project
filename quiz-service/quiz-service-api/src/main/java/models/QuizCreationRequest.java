@@ -30,4 +30,8 @@ public class QuizCreationRequest {
     public boolean isTimed;
 
     private int timer;
+
+    private double minScoreToPass;
+
+    private String creatorId;
 }

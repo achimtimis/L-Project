@@ -34,6 +34,8 @@ public class QuestionEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     private Map<Integer, String> options = new HashMap<>();
 
+    private double score;
+
     public void addOption(String option) {
         if (options.keySet().size() > 0) {
             int position = Collections.max(options.keySet());

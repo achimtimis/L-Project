@@ -14,6 +14,8 @@ public class Answer {
 
     private Long questionId;
 
+    private String questionText;
+
     private String userId;
 
     private List<Integer> chosenOptions;

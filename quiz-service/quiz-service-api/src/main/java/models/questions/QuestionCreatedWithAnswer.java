@@ -22,4 +22,6 @@ public class QuestionCreatedWithAnswer {
 
     private boolean isInput;
 
+    private double score;
+
 }

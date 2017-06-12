@@ -29,4 +29,8 @@ public class QuizRequest {
     public boolean isTimed;
 
     private int timer;
+
+    private double minScoreToPass;
+
+    private double totalScore;
 }

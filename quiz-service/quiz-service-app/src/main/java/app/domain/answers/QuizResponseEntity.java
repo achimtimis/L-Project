@@ -42,4 +42,8 @@ public class QuizResponseEntity {
 
     private String userId;
 
+    private boolean isCorrected;
+
+    private boolean wasFinishedInTime;
+
 }

@@ -33,13 +33,15 @@ public class ResultEntity {
     private Map<Long, String> observations = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Map<Long, String> scorePerQuestion = new HashMap<>();
+    private Map<Long, Double> scorePerQuestion = new HashMap<>();
 
     private String extraFeedback;
 
     private String recomandations;
 
     private int totalDuration;
+
+    private boolean isPassed;
 
 
 

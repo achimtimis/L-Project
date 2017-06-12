@@ -1,7 +1,7 @@
 package app.endpoints;
 
 import app.client.IUserServiceFeign;
-import app.repository.IQuizResponseEntiyDao;
+import app.repository.IQuizResponseEntityDao;
 import models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ public class TestController {
     @Autowired
     private IUserServiceFeign userService;
     @Autowired
-    private IQuizResponseEntiyDao iQuizResponseEntiyDao;
+    private IQuizResponseEntityDao iQuizResponseEntityDao;
 
     @RequestMapping(value = "users/login", method = RequestMethod.GET)
     User logIn(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password) {
@@ -26,7 +26,7 @@ public class TestController {
     @RequestMapping(value = "test", method = RequestMethod.GET)
     @ResponseBody
     String test(){
-        return  iQuizResponseEntiyDao.findAll().toString();
+        return  iQuizResponseEntityDao.findAll().toString();
     }
 
 

@@ -25,7 +25,7 @@ public class AnswerEntity {
 
     @ManyToOne
     @JoinColumn(name = "question_id")
-    private QuestionEntity quiz_question;
+    private QuestionEntity quizQuestion;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private QuizResponseEntity quizResponse;
