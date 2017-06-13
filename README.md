@@ -19,7 +19,7 @@
   
 
 *Project Structure
-![Project_structure](http://imgur.com/bcE815I "Project Structure")
+![Project_structure](http://i.imgur.com/bcE815I.jpg "Project Structure")
 
 
 *What does it do
