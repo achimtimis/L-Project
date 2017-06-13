@@ -1,0 +1,3 @@
+98833 [http-nio-8002-exec-8] DEBUG analytics - answer:  
+49199 [http-nio-8002-exec-3] DEBUG analytics - answer: LogQuestionModel(question_id=1, questionText=hi?, qustionScore=1.0, isAnsweredCorrectly=true, userId=user2) 
+{"@timestamp":"2017-06-13T20:51:58.319+03:00","@version":1,"message":"answer: LogQuestionModel(question_id=1, questionText=hi?, qustionScore=1.0, isAnsweredCorrectly=true, userId=user2)","logger_name":"analytics","thread_name":"http-nio-8002-exec-3","level":"DEBUG","level_value":10000}

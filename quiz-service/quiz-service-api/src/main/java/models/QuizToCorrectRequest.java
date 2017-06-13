@@ -23,4 +23,10 @@ public class QuizToCorrectRequest {
     private List<AnswerWithQuestion> answerList;
 
     private int time;
+
+    private double score;
+
+    private boolean isPassed;
+
+    private String extraFeedback;
 }

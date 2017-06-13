@@ -174,16 +174,16 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
             ResultEntity quiz_result = quizResultService.getQuizResultByQuizResponseId(quiz_id);
             result.setPassed(quiz_result.isPassed());
             result.setId(quiz_result.getId());
-            result.setTotalScore(quiz_result.getTotalScore());
+            result.setTotalScore(quizResponseEntity.getQuiz().getMinimumScoreToPass());
             result.setScore(quiz_result.getTotalScore()); //todo ?
             result.setCorrected(quizResponseEntity.isCorrected());
             result.setQuiz_id(quizResponseEntity.getQuiz().getId());
             List<AnsweredQuestion> answeredQuestions = new ArrayList<>();
-            for (Long question_id : quiz_result.getScorePerQuestion().keySet()){
+            for (Long question_id : quiz_result.getScorePerQuestion().keySet()) {
                 QuestionEntity questionEntity = questionService.getQuestionById(question_id);
                 AnsweredQuestion answeredQuestion = new AnsweredQuestion();
                 answeredQuestion.setScore(quiz_result.getScorePerQuestion().get(question_id));
-                AnswerEntity answerEntity = getAnswerEntity(questionEntity, answeredQuestion);
+                AnswerEntity answerEntity = getAnswerEntity(questionEntity, answeredQuestion, student_id);
 
                 Question question = getQuestionModel(questionEntity, answerEntity);
                 answeredQuestion.setQuestion(question);
@@ -204,19 +204,20 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
         Question question = new Question();
         question.setId(questionEntity.getId());
         List<QuestionOptions> questionOptions = new ArrayList<>();
-        for (int key : questionEntity.getOptions().keySet()){
+        for (int key : questionEntity.getOptions().keySet()) {
             questionOptions.add(new QuestionOptions(key, questionEntity.getOptions().get(key)));
         }
         question.setQuestionOptions(questionOptions);
         question.setInput(false);
         question.setQuestionText(questionEntity.getQuestionText());
         question.setInputField("");
+        question.setScore(questionEntity.getScore());
         question.setChosenAnswer(answerEntity.getOption_responses()); //todo : wtf
         return question;
     }
 
-    private AnswerEntity getAnswerEntity(QuestionEntity questionEntity, AnsweredQuestion answeredQuestion) {
-        AnswerEntity answerEntity = answerService.getAnswerByQuestion(questionEntity);
+    private AnswerEntity getAnswerEntity(QuestionEntity questionEntity, AnsweredQuestion answeredQuestion, String student_id) {
+        AnswerEntity answerEntity = answerService.getAnswerByQuestion(questionEntity, student_id);
         Answer answer = new Answer();
         answer.setUserId(answerEntity.getCiamUserId());
         answer.setChosenOptions(answerEntity.getOption_responses());
@@ -230,18 +231,61 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
     public List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId, @PathVariable(name = "quizId") Long quizId) {
         List<QuizToCorrectRequest> quizes = new ArrayList<>();
         List<QuizResponseEntity> quiz_responses = quizResultService.getQuizesToCorrect(userId, quizId);
-        for (QuizResponseEntity quizResponseEntity : quiz_responses){
-            QuizToCorrectRequest quizToCorrect =  new QuizToCorrectRequest();
+        for (QuizResponseEntity quizResponseEntity : quiz_responses) {
+            QuizToCorrectRequest quizToCorrect = new QuizToCorrectRequest();
             quizToCorrect.setId(quizResponseEntity.getId());
             quizToCorrect.setUserId(quizResponseEntity.getUserId());
             quizToCorrect.setTime(quizResponseEntity.getTime());
             quizToCorrect.setQuizId(quizResponseEntity.getQuiz().getId());
             quizToCorrect.setAnswerList(quizResponseEntity.getAnswers().stream()
-                .map(answerEntity -> getAnswerWithQuestionModel(answerEntity)).collect(Collectors.toList()));
+                    .map(answerEntity -> getAnswerWithQuestionModel(answerEntity)).collect(Collectors.toList()));
             quizes.add(quizToCorrect);
 
         }
         return quizes;
+    }
+
+    @Override
+    public void saveQuizResponseEvaluation(@RequestBody QuizToCorrectRequest quizToCorrectRequest) {
+        QuizResponseEntity quizResponseEntity = quizService.getQuizResponseEntityById(quizToCorrectRequest.getQuizId());
+        ResultEntity resultEntity = quizResultService.getQuizResult(quizResponseEntity);
+        if (resultEntity != null) {
+            // if both input and choose
+            resultEntity.setPassed(quizToCorrectRequest.isPassed());
+            resultEntity.setTotalScore(quizToCorrectRequest.getScore());
+            resultEntity.setExtraFeedback(quizToCorrectRequest.getExtraFeedback());
+            resultEntity.setTotalDuration(quizToCorrectRequest.getTime());
+            Map<Long, Double> scorePerQuestion = new HashMap<>();
+            Map<Long, String> observations = new HashMap<>();
+            for (AnswerWithQuestion answer : quizToCorrectRequest.getAnswerList()) {
+                scorePerQuestion.put(answer.getQuestion().getId(), answer.getGraded_score());
+                observations.put(answer.getQuestion().getId(), answer.getObservation());
+            }
+            resultEntity.setExtraFeedback(quizToCorrectRequest.getExtraFeedback());
+            quizResponseEntity.setCorrected(true);
+            quizResultService.saveResult(resultEntity);
+            quizService.saveOrUpdateQuizResponse(quizResponseEntity);
+        } else {
+            // only input
+            resultEntity = new ResultEntity();
+            resultEntity.setPassed(quizToCorrectRequest.isPassed());
+            resultEntity.setTotalScore(quizToCorrectRequest.getScore());
+            resultEntity.setExtraFeedback(quizToCorrectRequest.getExtraFeedback());
+            resultEntity.setTotalDuration(quizToCorrectRequest.getTime());
+            Map<Long, Double> scorePerQuestion = new HashMap<>();
+            Map<Long, String> observations = new HashMap<>();
+            for (AnswerWithQuestion answer : quizToCorrectRequest.getAnswerList()) {
+                scorePerQuestion.put(answer.getQuestion().getId(), answer.getGraded_score());
+                observations.put(answer.getQuestion().getId(), answer.getObservation());
+            }
+            resultEntity.setExtraFeedback(quizToCorrectRequest.getExtraFeedback());
+            quizResponseEntity.setCorrected(true);
+            QuizResponseEntity saved = quizService.saveOrUpdateQuizResponse(quizResponseEntity);
+            resultEntity.setQuizResponse(saved);
+            resultEntity = quizResultService.saveResult(resultEntity);
+
+        }
+
     }
 
     private AnswerWithQuestion getAnswerWithQuestionModel(AnswerEntity answerEntity) {

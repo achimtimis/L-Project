@@ -6,8 +6,13 @@ import app.domain.questions.QuestionCorrectAnswer;
 import app.domain.questions.QuestionEntity;
 import app.domain.questions.QuizEntity;
 import app.domain.results.ResultEntity;
-import app.repository.*;
+import app.repository.IQuestionCorrectAnswerDao;
+import app.repository.IQuizEntityDao;
+import app.repository.IQuizResponseEntityDao;
+import app.repository.IResultEntityDao;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,15 +41,16 @@ public class QuizResultService {
     @Autowired
     IQuizEntityDao quizEntityDao;
 
+    Logger analytics = LoggerFactory.getLogger("analytics");
+
+
 
     public List<QuizResponseEntity> getQuizesToCorrect(String creatorId, Long quizId){
         List<QuizResponseEntity> quizes = new ArrayList<>();
         QuizEntity quizEntity = quizEntityDao.findByCreatorIdAndId(creatorId, quizId);
         return quizResponseEntityDao.findByQuiz(quizEntity).stream()
-                .filter(quizResponseEntity -> !quizResponseEntity.getQuiz().getQuizType().toString().contains("INPUT"))
+                .filter(quizResponseEntity -> quizResponseEntity.isCorrected() == false)
                 .collect(Collectors.toList());
-
-
     }
 
 
@@ -88,11 +94,19 @@ public class QuizResultService {
     }
 
     private ResultEntity getOptionsAndInputQuizResult(QuizResponseEntity quizResponseEntity) {
-        return null;
+        ResultEntity result = null;
+        result = getInputQuizResult(quizResponseEntity);
+        quizResponseEntity.setCorrected(false);
+        quizResponseEntityDao.save(quizResponseEntity);
+        return result;
     }
 
     private ResultEntity getInputQuizResult(QuizResponseEntity quizResponseEntity) {
-        return null;
+        ResultEntity resultEntity = null;
+        if (quizResponseEntity.isCorrected()){
+            resultEntity = resultEntityDao.findByQuizResponse(quizResponseEntity);
+        }
+        return resultEntity;
     }
 
 
@@ -104,13 +118,10 @@ public class QuizResultService {
             QuestionEntity questionEntity = answer.getQuizQuestion();
             QuestionCorrectAnswer questionCorrectAnswer = questionEntity.getQuestionCorrectAnswer();
             if (areAnswersCorrect(answer.getOption_responses(), questionCorrectAnswer.getValidAnswers())) {
-//            if (answer.getOption_responses().equals(questionCorrectAnswer.getValidAnswers())) {
-                // the options results are the same
-                log.error("answer: ", new LogQuestionModel(questionEntity.getId(), questionEntity.getQuestionText(),
+                analytics.debug("answer: {}", new LogQuestionModel(questionEntity.getId(), questionEntity.getQuestionText(),
                         questionEntity.getScore(), true, quizResponseEntity.getUserId()));
                 totalScore += questionEntity.getScore();
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), questionEntity.getScore());
-//                resultEntity.getObservations().put(questionEntity.getId(), answ)
             } else {
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), 0d);
             }
@@ -141,4 +152,7 @@ public class QuizResultService {
         return result;
     }
 
+    public ResultEntity saveResult(ResultEntity resultEntity) {
+        return resultEntityDao.saveAndFlush(resultEntity);
+    }
 }

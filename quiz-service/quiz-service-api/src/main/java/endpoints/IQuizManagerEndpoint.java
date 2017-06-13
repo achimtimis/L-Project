@@ -39,4 +39,8 @@ public interface IQuizManagerEndpoint {
     @RequestMapping(value = "quizes/tograde/{userId}/{quizId}", method = RequestMethod.GET)
     List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId,
                                                         @PathVariable(name = "quizId") Long quizId);
+
+
+    @RequestMapping(value = "quizes/tograde/{quiz_id}", method = RequestMethod.POST)
+    void saveQuizResponseEvaluation(@RequestBody QuizToCorrectRequest quizToCorrectRequest);
 }

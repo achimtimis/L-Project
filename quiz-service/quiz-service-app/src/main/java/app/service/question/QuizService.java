@@ -22,4 +22,8 @@ public class QuizService {
     public QuizResponseEntity getQuizResponseEntityById(Long id){
         return quizResponseEntityDao.findOne(id);
     }
+
+    public QuizResponseEntity saveOrUpdateQuizResponse(QuizResponseEntity quizResponseEntity){
+        return quizResponseEntityDao.saveAndFlush(quizResponseEntity);
+    }
 }

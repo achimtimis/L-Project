@@ -6,6 +6,8 @@ import app.repository.IAnswerEntityDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by achy_ on 6/12/2017.
  */
@@ -16,7 +18,7 @@ public class AnswerService {
     private IAnswerEntityDao answerEntityDao;
 
 
-    public AnswerEntity getAnswerByQuestion(QuestionEntity question) {
-        return answerEntityDao.findByQuizQuestion(question);
+    public AnswerEntity getAnswerByQuestion(QuestionEntity question, String ciamUserId) {
+        return answerEntityDao.findByQuizQuestionAndCiamUserId(question, ciamUserId);
     }
 }
