@@ -10,6 +10,7 @@ import app.repository.IQuestionCorrectAnswerDao;
 import app.repository.IQuizEntityDao;
 import app.repository.IQuizResponseEntityDao;
 import app.repository.IResultEntityDao;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +112,7 @@ public class QuizResultService {
 
 
     public ResultEntity getOptionsOnlyQuizResult(QuizResponseEntity quizResponseEntity) {
+        Gson gson = new Gson();
         ResultEntity resultEntity = new ResultEntity();
         resultEntity.setTotalDuration(quizResponseEntity.getTime());
         int totalScore = 0;
@@ -118,12 +120,17 @@ public class QuizResultService {
             QuestionEntity questionEntity = answer.getQuizQuestion();
             QuestionCorrectAnswer questionCorrectAnswer = questionEntity.getQuestionCorrectAnswer();
             if (areAnswersCorrect(answer.getOption_responses(), questionCorrectAnswer.getValidAnswers())) {
-                analytics.debug("answer: {}", new LogQuestionModel(questionEntity.getId(), questionEntity.getQuestionText(),
-                        questionEntity.getScore(), true, quizResponseEntity.getUserId()));
+
+                analytics.debug("{}", gson.toJson(new LogQuestionModel(questionEntity.getId(), quizResponseEntity.getQuiz().getId(), quizResponseEntity.getQuiz().getQuizType().toString(),
+                        questionEntity.getQuestionText(),
+                        questionEntity.getScore(), true, quizResponseEntity.getUserId())));
                 totalScore += questionEntity.getScore();
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), questionEntity.getScore());
             } else {
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), 0d);
+                analytics.debug("{}", gson.toJson(new LogQuestionModel(questionEntity.getId(), quizResponseEntity.getQuiz().getId(), quizResponseEntity.getQuiz().getQuizType().toString(),
+                        questionEntity.getQuestionText(),
+                        questionEntity.getScore(), false, quizResponseEntity.getUserId())));
             }
         }
 

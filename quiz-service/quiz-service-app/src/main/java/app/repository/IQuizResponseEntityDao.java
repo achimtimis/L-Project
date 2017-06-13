@@ -14,4 +14,5 @@ import java.util.List;
 public interface IQuizResponseEntityDao extends JpaRepository<QuizResponseEntity, Long> {
     List<QuizResponseEntity> findByQuiz(QuizEntity quizEntity);
 
+    QuizResponseEntity findByQuizAndUserId(QuizEntity quizResponseEntity, String userId);
 }

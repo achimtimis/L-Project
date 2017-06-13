@@ -6,9 +6,6 @@ import app.domain.questions.QuestionCorrectAnswer;
 import app.domain.questions.QuestionEntity;
 import app.domain.questions.QuizEntity;
 import app.domain.results.ResultEntity;
-import app.repository.IQuestionCorrectAnswerDao;
-import app.repository.IQuizEntityDao;
-import app.repository.IQuizResponseEntityDao;
 import app.service.question.AnswerService;
 import app.service.question.QuestionService;
 import app.service.question.QuizResultService;
@@ -37,17 +34,9 @@ import java.util.stream.Collectors;
 @CrossOrigin
 public class QuizManagerEndpoint implements IQuizManagerEndpoint {
 
-    @Autowired
-    private IQuizEntityDao quizEntityDao;
 
     @Autowired
     private QuestionService questionService;
-
-    @Autowired
-    private IQuestionCorrectAnswerDao correctAnswerDao;
-
-    @Autowired
-    private IQuizResponseEntityDao iQuizResponseEntityDao;
 
     @Autowired
     private QuizService quizService;
@@ -87,7 +76,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
         quizEntity.setMinimumScoreToPass(q.getMinScoreToPass());
         quizEntity.setCreatorId(q.getCreatorId());
 
-        QuizEntity quizEntity1 = quizEntityDao.save(quizEntity);
+        QuizEntity quizEntity1 = quizService.save(quizEntity);
 
         return null;
     }
@@ -114,7 +103,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
     @Override
     public QuizRequest getQuizById(@PathVariable(value = "id") Long id) {
         QuizRequest quizRequest = new QuizRequest();
-        QuizEntity quizEntity = quizEntityDao.findOne(id);
+        QuizEntity quizEntity = quizService.findOne(id);
         quizRequest.setQuiz_id(quizEntity.getId());
         quizRequest.setTimer(quizEntity.getTimer());
         quizRequest.setTimed(false);
@@ -144,9 +133,12 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
     @Override
     public QuizResponseRequest saveQuizResponse(@RequestBody QuizResponseRequest quizResponseRequest) {
         QuizResponseEntity quizResponseEntity = new QuizResponseEntity();
+        QuizEntity qe = quizService.findOne(quizResponseRequest.getQuizId());
+        if (quizService.getQuizResponseEntityByStudentIdAndQuizId(qe, quizResponseRequest.getUserId()) != null) {
+            return null;
+        }
         quizResponseEntity.setUserId(quizResponseRequest.getUserId());
         quizResponseEntity.setTime(quizResponseRequest.getTime());
-        QuizEntity qe = quizEntityDao.findOne(quizResponseRequest.getQuizId());
         quizResponseEntity.setQuiz(qe);
         List<AnswerEntity> answers = new ArrayList<>();
         for (Answer a : quizResponseRequest.getAnswerList()) {
@@ -159,7 +151,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
             answers.add(answerEntity);
         }
         quizResponseEntity.setAnswers(answers);
-        QuizResponseEntity saved = iQuizResponseEntityDao.save(quizResponseEntity);
+        QuizResponseEntity saved = quizService.save(quizResponseEntity);
         quizResultService.getQuizResult(saved);
         return null;
     }

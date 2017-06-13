@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class LogQuestionModel {
 
     private Long question_id;
+    private Long quiz_id;
+    private String quiz_type;
     private String questionText;
     private double qustionScore;
     private boolean isAnsweredCorrectly;

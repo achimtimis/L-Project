@@ -1,6 +1,7 @@
 package app.service.question;
 
 import app.domain.answers.QuizResponseEntity;
+import app.domain.questions.QuizEntity;
 import app.repository.IQuizEntityDao;
 import app.repository.IQuizResponseEntityDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,21 @@ public class QuizService {
 
     public QuizResponseEntity saveOrUpdateQuizResponse(QuizResponseEntity quizResponseEntity){
         return quizResponseEntityDao.saveAndFlush(quizResponseEntity);
+    }
+
+    public QuizEntity save(QuizEntity quizEntity) {
+        return quizEntityDao.save(quizEntity);
+    }
+
+    public QuizEntity findOne(Long quizId) {
+        return quizEntityDao.findOne(quizId);
+    }
+
+    public QuizResponseEntity save(QuizResponseEntity quizResponseEntity) {
+        return quizResponseEntityDao.save(quizResponseEntity);
+    }
+
+    public QuizResponseEntity getQuizResponseEntityByStudentIdAndQuizId(QuizEntity qe, String userId) {
+        return quizResponseEntityDao.findByQuizAndUserId(qe, userId);
     }
 }
