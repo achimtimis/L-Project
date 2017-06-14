@@ -1,6 +1,7 @@
 package app.endpoints;
 
 import app.client.IQuizServiceFeign;
+import app.client.IUserServiceFeign;
 import endpoints.IQuizManagerEndpoint;
 import models.*;
 import models.questions.QuestionCreatedWithAnswer;
@@ -23,9 +24,16 @@ public class QuizManagementEndpoint implements IQuizManagerEndpoint {
     @Autowired
     IQuizServiceFeign quizServiceFeign;
 
+    @Autowired
+    private IUserServiceFeign userServiceFeign;
+
     @Override
     public QuizCreationRequest createQuiz(@RequestBody QuizCreationRequest quizCreationRequest) {
-        return quizServiceFeign.createQuiz(quizCreationRequest);
+        if (userServiceFeign.getUser(quizCreationRequest.getCreatorId()) != null) {
+            return quizServiceFeign.createQuiz(quizCreationRequest);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
     }
 
     @Override
@@ -40,16 +48,28 @@ public class QuizManagementEndpoint implements IQuizManagerEndpoint {
 
     @Override
     public QuizResponseRequest saveQuizResponse(@RequestBody QuizResponseRequest quizResponseRequest) {
-        return quizServiceFeign.saveQuizResponse(quizResponseRequest);
+        if (userServiceFeign.getUser(quizResponseRequest.getUserId()) != null) {
+            return quizServiceFeign.saveQuizResponse(quizResponseRequest);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
     }
 
     @Override
-    public QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String s, @PathVariable(name = "quiz_id") Long aLong) {
-        return quizServiceFeign.getQuizResultForStudent(s, aLong);
+    public QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String studentId, @PathVariable(name = "quiz_id") Long quizId) {
+        if (userServiceFeign.getUser(studentId) != null) {
+            return quizServiceFeign.getQuizResultForStudent(studentId, quizId);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
     }
 
     @Override
-    public List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String s, @PathVariable(name = "quizId") Long aLong) {
-        return quizServiceFeign.getListOfQuizesToCorrect(s, aLong);
+    public List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String professorId, @PathVariable(name = "quizId") Long quizId) {
+        if (userServiceFeign.getUser(professorId) != null) {
+            return quizServiceFeign.getListOfQuizesToCorrect(professorId, quizId);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
     }
 }

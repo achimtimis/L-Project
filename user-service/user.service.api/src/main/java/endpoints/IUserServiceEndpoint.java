@@ -31,6 +31,10 @@ public interface IUserServiceEndpoint {
     @ResponseBody
     User getUser(@PathVariable(value = "id") Long id);
 
+    @RequestMapping(value = "users/{username}", method = RequestMethod.GET)
+    @ResponseBody
+    User getUser(@PathVariable(name = "username") String username);
+
 }
 
 

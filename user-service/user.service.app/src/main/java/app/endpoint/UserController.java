@@ -32,14 +32,14 @@ public class UserController implements IUserServiceEndpoint {
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(@RequestBody User user) {
         User result = null;
         try {
-            return userService.createUser(user);
+            result =  userService.createUser(user);
         } catch (Exception e) {
             //
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -57,6 +57,11 @@ public class UserController implements IUserServiceEndpoint {
     @Override
     public User getUser(@PathVariable("id") Long id) {
         return userService.getUserById(id);
+    }
+
+    @Override
+    public User getUser(@PathVariable(name = "username") String username) {
+        return userService.getUserByUsername(username);
     }
 
 

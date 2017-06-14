@@ -47,4 +47,9 @@ public class UserManagementEndpoint implements IUserManagementEndpoint {
     public User getUser(@PathVariable("id") Long userId) {
         return userServiceFeign.getUser(userId);
     }
+
+    @Override
+    public User getUser(@PathVariable(name = "username") String username) {
+        return userServiceFeign.getUser(username);
+    }
 }

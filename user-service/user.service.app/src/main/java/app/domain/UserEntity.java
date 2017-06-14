@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users", schema = "public")
+@Table(name = "users")
 public class UserEntity implements Serializable {
 
     @Id
@@ -24,6 +24,7 @@ public class UserEntity implements Serializable {
 
     private UserRole role;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_profile_id")
     private UserProfile userProfile;
 }

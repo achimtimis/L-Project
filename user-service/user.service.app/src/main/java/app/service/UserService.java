@@ -8,6 +8,7 @@ import models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
  * Created by achy_ on 5/16/2017.
  */
 @Service
+@Transactional
 public class UserService {
 
     @Autowired
@@ -39,13 +41,23 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        return mapUser(userRepository.saveAndFlush(mapUser(user)));
+        if (userRepository.findByUsername(user.getUsername()) == null) {
+            return mapUser(userRepository.saveAndFlush(mapUser(user)));
+        } else {
+            throw new IllegalArgumentException("The given username already exists");
+        }
+
     }
 
     private UserEntity mapUser(User user) {
+        UserProfile userProfile = new UserProfile();
+        userProfile.setFistName(user.getFirstName());
+        userProfile.setLastname(user.getLastName());
+        userProfile.setDetails(user.getDetails());
+        userProfile.setEmail(user.getEmail());
         return new UserEntity(user.getId(), user.getUsername(), user.getPassword(),
                 UserRole.valueOf(user.getRole()),
-                new UserProfile(null, user.getEmail(), user.getFirstName(), user.getLastName(), user.getDetails()));
+                userProfile);
     }
 
     public User deleteUser(Long id) {
@@ -67,5 +79,9 @@ public class UserService {
 
     public User getUserById(Long id) {
         return mapUser(userRepository.findOne(id));
+    }
+
+    public User getUserByUsername(String username){
+        return mapUser(userRepository.findByUsername(username));
     }
 }
