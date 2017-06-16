@@ -15,4 +15,6 @@ public interface IQuizResponseEntityDao extends JpaRepository<QuizResponseEntity
     List<QuizResponseEntity> findByQuiz(QuizEntity quizEntity);
 
     QuizResponseEntity findByQuizAndUserId(QuizEntity quizResponseEntity, String userId);
+
+    List<QuizResponseEntity> findByUserId(String student_id);
 }

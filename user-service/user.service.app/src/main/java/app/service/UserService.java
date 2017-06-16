@@ -34,6 +34,7 @@ public class UserService {
     }
 
     private User mapUser(UserEntity userEntity) {
+        if (userEntity == null) throw new RuntimeException("invalid user");
         return new User(userEntity.getId(), userEntity.getUsername(),
                 userEntity.getPassword(), userEntity.getRole().toString(), userEntity.getUserProfile().getFistName(),
                 userEntity.getUserProfile().getLastname(), userEntity.getUserProfile().getEmail(),

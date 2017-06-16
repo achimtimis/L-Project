@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @CrossOrigin
+//        (origins = "http://localhost:8808")
 public class QuizManagerEndpoint implements IQuizManagerEndpoint {
 
 
@@ -75,7 +76,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
         quizEntity.setTimer(q.getTimer());
         quizEntity.setMinimumScoreToPass(q.getMinScoreToPass());
         quizEntity.setCreatorId(q.getCreatorId());
-
+        quizEntity.setTimed(q.isTimed());
         QuizEntity quizEntity1 = quizService.save(quizEntity);
 
         return null;
@@ -101,12 +102,22 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
     }
 
     @Override
+    public List<QuizRequest> getAllQuizesOfAStudent(@PathVariable(name = "studentid") String studentid) {
+        return quizService.getAllQuizesOfAStudent(studentid).stream().map(quizEntity -> getQuizRequestModel(quizEntity))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public QuizRequest getQuizById(@PathVariable(value = "id") Long id) {
-        QuizRequest quizRequest = new QuizRequest();
         QuizEntity quizEntity = quizService.findOne(id);
+        return getQuizRequestModel(quizEntity);
+    }
+
+    private QuizRequest getQuizRequestModel(QuizEntity quizEntity) {
+        QuizRequest quizRequest = new QuizRequest();
         quizRequest.setQuiz_id(quizEntity.getId());
         quizRequest.setTimer(quizEntity.getTimer());
-        quizRequest.setTimed(false);
+        quizRequest.setTimed(quizEntity.isTimed());
         quizRequest.setQuizType(quizEntity.getQuizType());
         List<Question> questions = new ArrayList<>();
         for (QuestionEntity questionEntity : quizEntity.getQuiz_questions()) {
@@ -121,6 +132,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
                 qo.add(new QuestionOptions(Integer.valueOf(key), questionEntity.getOptions().get(key)));
             }
             question.setQuestionOptions(qo);
+            question.setQuestionId(questionEntity.getId());
             questions.add(question);
         }
         quizRequest.setQuestions(questions);
@@ -157,39 +169,18 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
     }
 
     @Override
-    public QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String student_id, @PathVariable(name = "quiz_id") Long quiz_id) {
-        QuizStudentResultResponse result = new QuizStudentResultResponse();
-        //todo: check if student exists
-        QuizResponseEntity quizResponseEntity = quizService.getQuizResponseEntityById(quiz_id);
-        if (quizResponseEntity.isCorrected()) {
-            //
-            ResultEntity quiz_result = quizResultService.getQuizResultByQuizResponseId(quiz_id);
-            result.setPassed(quiz_result.isPassed());
-            result.setId(quiz_result.getId());
-            result.setTotalScore(quizResponseEntity.getQuiz().getMinimumScoreToPass());
-            result.setScore(quiz_result.getTotalScore()); //todo ?
-            result.setCorrected(quizResponseEntity.isCorrected());
-            result.setQuiz_id(quizResponseEntity.getQuiz().getId());
-            List<AnsweredQuestion> answeredQuestions = new ArrayList<>();
-            for (Long question_id : quiz_result.getScorePerQuestion().keySet()) {
-                QuestionEntity questionEntity = questionService.getQuestionById(question_id);
-                AnsweredQuestion answeredQuestion = new AnsweredQuestion();
-                answeredQuestion.setScore(quiz_result.getScorePerQuestion().get(question_id));
-                AnswerEntity answerEntity = getAnswerEntity(questionEntity, answeredQuestion, student_id);
+    public QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String student_id,
+                                                             @PathVariable(name = "quiz_response_id") Long quiz_response_id) {
+        return quizResultService.mapResultResponse(quizResultService.getQuizResultsForStudent(student_id)
+                .stream().filter(resultEntity -> resultEntity.getId() == quiz_response_id).findFirst().get(), student_id);
+    }
 
-                Question question = getQuestionModel(questionEntity, answerEntity);
-                answeredQuestion.setQuestion(question);
-                answeredQuestion.setMaxScore(questionEntity.getScore());
-                answeredQuestion.setObservation(quiz_result.getObservations().get(question_id));
-                answeredQuestions.add(answeredQuestion);
-            }
-            result.setAnsweredQuestions(answeredQuestions);
-            result.setExtraFeedback(quiz_result.getExtraFeedback());
-        } else {
-            result = null;
-        }
-        return result;
 
+    @Override
+    public List<QuizStudentResultResponse> getAllQuizResultsForStudent(@PathVariable(name = "student_id") String student_id) {
+        List<ResultEntity> resultEntities = quizResultService.getQuizResultsForStudent(student_id);
+        return resultEntities.stream().map(resultEntity -> quizResultService.mapResultResponse(resultEntity, student_id))
+                .collect(Collectors.toList());
     }
 
     private Question getQuestionModel(QuestionEntity questionEntity, AnswerEntity answerEntity) {
@@ -204,20 +195,11 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
         question.setQuestionText(questionEntity.getQuestionText());
         question.setInputField("");
         question.setScore(questionEntity.getScore());
+        question.setQuestionId(questionEntity.getId());
         question.setChosenAnswer(answerEntity.getOption_responses()); //todo : wtf
         return question;
     }
 
-    private AnswerEntity getAnswerEntity(QuestionEntity questionEntity, AnsweredQuestion answeredQuestion, String student_id) {
-        AnswerEntity answerEntity = answerService.getAnswerByQuestion(questionEntity, student_id);
-        Answer answer = new Answer();
-        answer.setUserId(answerEntity.getCiamUserId());
-        answer.setChosenOptions(answerEntity.getOption_responses());
-        answer.setInputResponse(answerEntity.getInput_response());
-        answer.setQuestionId(questionEntity.getId());
-        answeredQuestion.setAnswer(answer);
-        return answerEntity;
-    }
 
     @Override
     public List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId, @PathVariable(name = "quizId") Long quizId) {

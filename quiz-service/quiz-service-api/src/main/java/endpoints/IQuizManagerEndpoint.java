@@ -21,6 +21,10 @@ public interface IQuizManagerEndpoint {
     @ResponseBody
     QuestionCreatedWithAnswer saveQuestion(@RequestBody QuestionCreatedWithAnswer q);
 
+    @RequestMapping(value = "/quizes/{studentid}", method = RequestMethod.GET)
+    @ResponseBody
+    List<QuizRequest> getAllQuizesOfAStudent(@PathVariable(name = "studentid") String userId);
+
 
     @RequestMapping(value = "quiz/{id}", method = RequestMethod.GET)
     @ResponseBody
@@ -31,10 +35,15 @@ public interface IQuizManagerEndpoint {
     @ResponseBody
     QuizResponseRequest saveQuizResponse(@RequestBody QuizResponseRequest quizResponseRequest);
 
-    @RequestMapping(value = "quiz/result/{student_id}/{quiz_id}", method = RequestMethod.GET)
+    @RequestMapping(value = "quiz/result/{student_id}/{quiz_response_id}", method = RequestMethod.GET)
     @ResponseBody
     QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String student_id,
-                                                      @PathVariable(name = "quiz_id") Long quiz_id);
+                                                      @PathVariable(name = "quiz_response_id") Long quiz_response_id);
+
+    @RequestMapping(value = "quiz/result/{student_id}", method = RequestMethod.GET)
+    @ResponseBody
+    List<QuizStudentResultResponse> getAllQuizResultsForStudent(@PathVariable(name = "student_id") String student_id);
+
 
     @RequestMapping(value = "quizes/tograde/{userId}/{quizId}", method = RequestMethod.GET)
     List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId,

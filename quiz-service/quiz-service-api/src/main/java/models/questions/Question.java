@@ -16,6 +16,8 @@ public class Question {
 
     private Long id;
 
+    private Long questionId;
+
     private String questionText;
 
     private List<QuestionOptions> questionOptions;

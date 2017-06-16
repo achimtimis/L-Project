@@ -43,5 +43,7 @@ public class QuizEntity {
 
     private String creatorId;
 
+    private boolean isTimed;
+
 
 }
