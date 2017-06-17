@@ -20,6 +20,7 @@ import java.util.List;
 public class QuizCreationRequest {
     // includes the list of questionCreatedWithAnswers with their correct answers
 
+    private String name;
 
     private List<QuestionCreatedWithAnswer> questionCreatedWithAnswers;
 

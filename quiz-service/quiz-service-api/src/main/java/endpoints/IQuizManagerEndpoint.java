@@ -2,6 +2,7 @@ package endpoints;
 
 import models.*;
 import models.questions.QuestionCreatedWithAnswer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,10 @@ public interface IQuizManagerEndpoint {
     @ResponseBody
     QuizResponseRequest saveQuizResponse(@RequestBody QuizResponseRequest quizResponseRequest);
 
+    @RequestMapping(value = "quiz/response/failed/{userid}/{quizid}", method = RequestMethod.POST)
+    @ResponseBody
+    void saveQuizFailedResponse(@PathVariable(name = "userid") String userid, @PathVariable(name = "quizid") Long quizid);
+
     @RequestMapping(value = "quiz/result/{student_id}/{quiz_response_id}", method = RequestMethod.GET)
     @ResponseBody
     QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String student_id,
@@ -45,11 +50,17 @@ public interface IQuizManagerEndpoint {
     List<QuizStudentResultResponse> getAllQuizResultsForStudent(@PathVariable(name = "student_id") String student_id);
 
 
-    @RequestMapping(value = "quizes/tograde/{userId}/{quizId}", method = RequestMethod.GET)
-    List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId,
-                                                        @PathVariable(name = "quizId") Long quizId);
+    @RequestMapping(value = "quiz/result/prof/{prof_id}", method = RequestMethod.GET)
+    @ResponseBody
+    List<QuizStudentResultResponse> getAllQuizResultsByProfessor(@PathVariable(name = "prof_id") String prof_id);
 
 
-    @RequestMapping(value = "quizes/tograde/{quiz_id}", method = RequestMethod.POST)
+    @RequestMapping(value = "quizes/tograde/{userId}", method = RequestMethod.GET)
+    List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId);
+
+    @RequestMapping(value = "quizes/tograde/response/{responseid}", method = RequestMethod.GET)
+    QuizToCorrectRequest getQuizResponseToGradeById(@PathVariable(name = "responseid") Long responseid);
+
+    @RequestMapping(value = "quizes/tograde", method = RequestMethod.POST)
     void saveQuizResponseEvaluation(@RequestBody QuizToCorrectRequest quizToCorrectRequest);
 }

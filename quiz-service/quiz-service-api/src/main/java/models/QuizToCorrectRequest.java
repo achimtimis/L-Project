@@ -18,6 +18,8 @@ public class QuizToCorrectRequest {
 
     private String userId;
 
+    private String quiz_name;
+
     private Long quizId;
 
     private List<AnswerWithQuestion> answerList;

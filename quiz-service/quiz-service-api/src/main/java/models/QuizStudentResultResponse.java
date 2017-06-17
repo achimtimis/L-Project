@@ -17,6 +17,7 @@ public class QuizStudentResultResponse {
     // GET the results of a quiz for a given student
     private Long id;
     private Long quiz_id;
+    private String quiz_name;
     private List<AnsweredQuestion> answeredQuestions;
     private double score;
     private double totalScore;

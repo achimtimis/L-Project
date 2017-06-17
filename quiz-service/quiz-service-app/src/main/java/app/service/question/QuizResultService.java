@@ -12,9 +12,7 @@ import app.repository.IQuizResponseEntityDao;
 import app.repository.IResultEntityDao;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import models.Answer;
-import models.AnsweredQuestion;
-import models.QuizStudentResultResponse;
+import models.*;
 import models.questions.Question;
 import models.questions.QuestionOptions;
 import org.slf4j.Logger;
@@ -24,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,12 +56,14 @@ public class QuizResultService {
 
 
 
-    public List<QuizResponseEntity> getQuizesToCorrect(String creatorId, Long quizId){
+    public List<QuizResponseEntity> getQuizesToCorrect(String creatorId){
         List<QuizResponseEntity> quizes = new ArrayList<>();
-        QuizEntity quizEntity = quizEntityDao.findByCreatorIdAndId(creatorId, quizId);
-        return quizResponseEntityDao.findByQuiz(quizEntity).stream()
+        List<QuizEntity> quizEntities = quizEntityDao.findByCreatorId(creatorId);
+        quizEntities.stream().forEach(quizEntity ->
+                quizResponseEntityDao.findByQuiz(quizEntity).stream()
                 .filter(quizResponseEntity -> quizResponseEntity.isCorrected() == false)
-                .collect(Collectors.toList());
+                .forEach(quizes::add));
+        return quizes;
     }
 
 
@@ -187,6 +188,18 @@ public class QuizResultService {
         }
         return resultEntities;
     }
+
+    public List<ResultEntity> getQuizResultsByProfessor(String proffId){
+        List<ResultEntity> resultEntities= new ArrayList<>();
+        List<QuizEntity> quizesByProfessor = quizEntityDao.findByCreatorId(proffId);
+        quizesByProfessor
+                .stream()
+                .forEach(quizEntity -> quizResponseEntityDao.findByQuiz(quizEntity)
+                .stream()
+                .filter(quizResponseEntity -> quizResponseEntity.isCorrected())
+                .forEach(qre -> resultEntities.add(resultEntityDao.findByQuizResponse(qre))));
+        return resultEntities;
+    }
     public QuizStudentResultResponse mapResultResponse(ResultEntity quiz_result, String student_id) {
         QuizStudentResultResponse result = new QuizStudentResultResponse();
         result.setPassed(quiz_result.isPassed());
@@ -194,6 +207,7 @@ public class QuizResultService {
         result.setTotalScore(quiz_result.getTotalScore());
         result.setScore(quiz_result.getTotalScore()); //todo ?
         result.setCorrected(true);
+        result.setQuiz_name(quiz_result.getQuizResponse().getQuiz().getName());
         result.setQuiz_id(null);
         List<AnsweredQuestion> answeredQuestions = new ArrayList<>();
         for (Long question_id : quiz_result.getScorePerQuestion().keySet()) {
@@ -239,5 +253,54 @@ public class QuizResultService {
         question.setQuestionId(questionEntity.getId());
         question.setChosenAnswer(answerEntity.getOption_responses()); //todo : wtf
         return question;
+    }
+
+    public void saveFailedQuiz(String userid, Long quizid) {
+        QuizEntity quiz = quizEntityDao.getOne(quizid);
+        QuizResponseEntity quizResponseEntity = new QuizResponseEntity();
+        quizResponseEntity.setAnswers(new ArrayList<>());
+        quizResponseEntity.setCorrected(true);
+        quizResponseEntity.setUserId(userid);
+        quizResponseEntity.setQuiz(quiz);
+        quizResponseEntity.setTime(quiz.getTimer() + 1);
+        quizResponseEntity.setWasFinishedInTime(false);
+        QuizResponseEntity saved = quizResponseEntityDao.save(quizResponseEntity);
+        ResultEntity resultEntity  = new ResultEntity();
+        resultEntity.setQuizResponse(saved);
+        resultEntity.setExtraFeedback("Be faster next time");
+        resultEntity.setTotalDuration(quiz.getTimer() + 1);
+        resultEntity.setTotalScore(0);
+        resultEntity.setObservations(new HashMap<>());
+        resultEntity.setScorePerQuestion(new HashMap<>());
+        resultEntity.setRecomandations("Be faser next time");
+        resultEntity.setPassed(false);
+        resultEntityDao.save(resultEntity);
+    }
+
+    private AnswerWithQuestion getAnswerWithQuestionModel(AnswerEntity answerEntity) {
+        QuestionEntity questionEntity = questionService.getQuestionById(answerEntity.getQuizQuestion().getId());
+        AnswerWithQuestion answerWithQuestion = new AnswerWithQuestion();
+        answerWithQuestion.setId(answerEntity.getId());
+        answerWithQuestion.setUserId(answerEntity.getCiamUserId());
+        answerWithQuestion.setChosenOptions(answerEntity.getOption_responses());
+        answerWithQuestion.setInputResponse(answerEntity.getInput_response());
+        answerWithQuestion.setQuestion(getQuestionModel(questionEntity, answerEntity));
+        return answerWithQuestion;
+    }
+
+    public QuizToCorrectRequest mapQuizToCorrectModel(QuizResponseEntity quizResponseEntity) {
+        QuizToCorrectRequest quizToCorrect = new QuizToCorrectRequest();
+        quizToCorrect.setId(quizResponseEntity.getId());
+        quizToCorrect.setUserId(quizResponseEntity.getUserId());
+        quizToCorrect.setQuiz_name(quizResponseEntity.getQuiz().getName());
+        quizToCorrect.setTime(quizResponseEntity.getTime());
+        quizToCorrect.setQuizId(quizResponseEntity.getQuiz().getId());
+        quizToCorrect.setAnswerList(quizResponseEntity.getAnswers().stream()
+                .map(answerEntity -> getAnswerWithQuestionModel(answerEntity)).collect(Collectors.toList()));
+        return quizToCorrect;
+    }
+
+    public QuizResponseEntity getQuizToCorrect(Long responseid) {
+        return this.quizResponseEntityDao.findOne(responseid);
     }
 }

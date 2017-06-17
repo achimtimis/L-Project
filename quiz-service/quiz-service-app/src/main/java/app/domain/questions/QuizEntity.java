@@ -45,5 +45,7 @@ public class QuizEntity {
 
     private boolean isTimed;
 
+    private String name;
+
 
 }

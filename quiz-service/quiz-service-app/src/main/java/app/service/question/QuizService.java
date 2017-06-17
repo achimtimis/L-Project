@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by achy_ on 6/12/2017.
@@ -52,20 +53,16 @@ public class QuizService {
 
     public List<QuizEntity> getAllQuizesOfAStudent(String studentid) {
         List<QuizEntity> result = new ArrayList<>();
+        List<QuizResponseEntity> quizResponses = quizResponseEntityDao.findByUserId(studentid);
         List<QuizEntity> quizEntities = quizEntityDao.findAll();
-        for (QuizEntity qe : quizEntities) {
-            List<QuizResponseEntity> quizResponseEntities = quizResponseEntityDao.findByQuiz(qe);
-            if (quizResponseEntities.size() ==0){
+        List<Long> all_responsed_quiz_id = quizResponses.stream().map(quizResponseEntity -> quizResponseEntity.getQuiz().getId()).collect(Collectors.toList());
+        for (QuizEntity qe: quizEntities){
+            if (!all_responsed_quiz_id.contains(qe.getId())) {
                 result.add(qe);
             }
-            for (QuizResponseEntity qre : quizResponseEntities) {
-                if (!qre.getUserId().equals(studentid)) {
-                    result.add(qe);
-                }
-            }
-
         }
         return result;
+
     }
 
 

@@ -2,6 +2,7 @@ package app.repository;
 
 import app.domain.answers.QuizResponseEntity;
 import app.domain.questions.QuizEntity;
+import models.QuizToCorrectRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,6 @@ public interface IQuizResponseEntityDao extends JpaRepository<QuizResponseEntity
     QuizResponseEntity findByQuizAndUserId(QuizEntity quizResponseEntity, String userId);
 
     List<QuizResponseEntity> findByUserId(String student_id);
+
+    QuizToCorrectRequest findByIdAndUserId(Long id, String userId);
 }
