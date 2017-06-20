@@ -24,9 +24,6 @@ public class QuestionEntity {
 
     private String questionText;
 
-//    @ManyToOne(cascade=CascadeType.ALL)
-//    private QuizEntity quiz;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "quest_correct_answer_id")
     private QuestionCorrectAnswer questionCorrectAnswer;

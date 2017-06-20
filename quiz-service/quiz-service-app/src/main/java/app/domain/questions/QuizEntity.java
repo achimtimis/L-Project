@@ -27,10 +27,9 @@ public class QuizEntity {
     @Column(name = "quiz_id")
     private Long id;
 
-    @OneToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REMOVE} , fetch = FetchType.LAZY, orphanRemoval = true)
-//    @JoinTable(name = "question_quiz", joinColumns = @JoinColumn(name = "question_id"), inverseJoinColumns = @JoinColumn(name = "quiz_id"))
+    @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @JoinColumn(name = "quiestion_id")
+    @JoinColumn(name = "quiz_question_id")
     private List<QuestionEntity> quiz_questions = new ArrayList<>();
 
     private TopicEnum topic;

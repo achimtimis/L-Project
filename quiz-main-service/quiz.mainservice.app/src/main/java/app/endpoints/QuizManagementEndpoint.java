@@ -42,6 +42,15 @@ public class QuizManagementEndpoint implements IQuizManagerEndpoint {
     }
 
     @Override
+    public List<QuizRequest> getAllQuizesOfAStudent(@PathVariable(name = "studentid") String studentid) {
+        if (userServiceFeign.getUser(studentid) != null) {
+            return quizServiceFeign.getAllQuizesOfAStudent(studentid);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
+    }
+
+    @Override
     public QuizRequest getQuizById(@PathVariable("id") Long aLong) {
         return quizServiceFeign.getQuizById(aLong);
     }
@@ -56,20 +65,58 @@ public class QuizManagementEndpoint implements IQuizManagerEndpoint {
     }
 
     @Override
-    public QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String studentId, @PathVariable(name = "quiz_id") Long quizId) {
-        if (userServiceFeign.getUser(studentId) != null) {
-            return quizServiceFeign.getQuizResultForStudent(studentId, quizId);
+    public void saveQuizFailedResponse(@PathVariable(name = "userid") String userid,
+                                       @PathVariable(name = "quizid") Long quizid) {
+        if (userServiceFeign.getUser(userid) != null) {
+            quizServiceFeign.saveQuizFailedResponse(userid, quizid);
         } else {
             throw new IllegalArgumentException("the user does not exist");
         }
     }
 
     @Override
-    public List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String professorId, @PathVariable(name = "quizId") Long quizId) {
-        if (userServiceFeign.getUser(professorId) != null) {
-            return quizServiceFeign.getListOfQuizesToCorrect(professorId, quizId);
+    public QuizStudentResultResponse getQuizResultForStudent(@PathVariable(name = "student_id") String studentId,
+                                                             @PathVariable(name = "quiz_response_id") Long quiz_response_id) {
+        if (userServiceFeign.getUser(studentId) != null) {
+            return quizServiceFeign.getQuizResultForStudent(studentId, quiz_response_id);
         } else {
             throw new IllegalArgumentException("the user does not exist");
         }
     }
+
+    @Override
+    public List<QuizStudentResultResponse> getAllQuizResultsForStudent(@PathVariable(name = "student_id") String student_id) {
+        if (userServiceFeign.getUser(student_id) != null) {
+            return quizServiceFeign.getAllQuizResultsForStudent(student_id);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
+    }
+
+    @Override
+    public List<QuizStudentResultResponse> getAllQuizResultsByProfessor(@PathVariable(name = "prof_id") String prof_id) {
+        if (userServiceFeign.getUser(prof_id) != null) {
+            return quizServiceFeign.getAllQuizResultsByProfessor(prof_id);
+        } else {
+            throw new IllegalArgumentException("the user does not exist");
+        }
+
+    }
+
+    @Override
+    public List<QuizToCorrectRequest> getListOfQuizesToCorrect(@PathVariable(name = "userId") String userId) {
+        return quizServiceFeign.getListOfQuizesToCorrect(userId);
+    }
+
+    @Override
+    public QuizToCorrectRequest getQuizResponseToGradeById(@PathVariable(name = "responseid") Long responseid) {
+        return quizServiceFeign.getQuizResponseToGradeById(responseid);
+    }
+
+    @Override
+    public void saveQuizResponseEvaluation(@RequestBody QuizToCorrectRequest quizToCorrectRequest) {
+        quizServiceFeign.saveQuizResponseEvaluation(quizToCorrectRequest);
+    }
+
+
 }

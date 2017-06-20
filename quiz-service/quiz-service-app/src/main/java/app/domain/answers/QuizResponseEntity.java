@@ -32,9 +32,6 @@ public class QuizResponseEntity {
     private QuizEntity quiz;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-//    @JoinTable(name = "quiz_answers", joinColumns = @JoinColumn(name = "quiz_id"),
-//            inverseJoinColumns = @JoinColumn(name = "answer_id")
-//            )
     @JoinColumn(name = "quiz_answer_id")
     private List<AnswerEntity> answers = new ArrayList<>();
 

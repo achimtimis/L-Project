@@ -55,26 +55,25 @@ public class QuizResultService {
     Logger analytics = LoggerFactory.getLogger("analytics");
 
 
-
-    public List<QuizResponseEntity> getQuizesToCorrect(String creatorId){
+    public List<QuizResponseEntity> getQuizesToCorrect(String creatorId) {
         List<QuizResponseEntity> quizes = new ArrayList<>();
         List<QuizEntity> quizEntities = quizEntityDao.findByCreatorId(creatorId);
         quizEntities.stream().forEach(quizEntity ->
                 quizResponseEntityDao.findByQuiz(quizEntity).stream()
-                .filter(quizResponseEntity -> quizResponseEntity.isCorrected() == false)
-                .forEach(quizes::add));
+                        .filter(quizResponseEntity -> quizResponseEntity.isCorrected() == false)
+                        .forEach(quizes::add));
         return quizes;
     }
 
 
-    public ResultEntity getQuizResultByQuizResponseId(Long quizResponseId){
+    public ResultEntity getQuizResultByQuizResponseId(Long quizResponseId) {
         QuizResponseEntity quizResponseEntity = quizResponseEntityDao.findOne(quizResponseId);
         return resultEntityDao.findByQuizResponse(quizResponseEntity);
     }
 
-    public ResultEntity getQuizResult(QuizResponseEntity quizResponseEntity){
+    public ResultEntity getQuizResult(QuizResponseEntity quizResponseEntity) {
         ResultEntity result = null;
-        switch (quizResponseEntity.getQuiz().getQuizType()){
+        switch (quizResponseEntity.getQuiz().getQuizType()) {
             case INPUT_QUESTION:
                 result = getInputQuizResult(quizResponseEntity);
                 break;
@@ -116,7 +115,7 @@ public class QuizResultService {
 
     private ResultEntity getInputQuizResult(QuizResponseEntity quizResponseEntity) {
         ResultEntity resultEntity = null;
-        if (quizResponseEntity.isCorrected()){
+        if (quizResponseEntity.isCorrected()) {
             resultEntity = resultEntityDao.findByQuizResponse(quizResponseEntity);
         }
         return resultEntity;
@@ -133,14 +132,14 @@ public class QuizResultService {
             QuestionCorrectAnswer questionCorrectAnswer = questionEntity.getQuestionCorrectAnswer();
             if (areAnswersCorrect(answer.getOption_responses(), questionCorrectAnswer.getValidAnswers())) {
 
-                analytics.debug("{}", gson.toJson(new LogQuestionModel(questionEntity.getId(), quizResponseEntity.getQuiz().getId(), quizResponseEntity.getQuiz().getQuizType().toString(),
+                analytics.debug("{}", gson.toJson(new LogQuestionModel(quizResponseEntity.getQuiz().getName(), quizResponseEntity.getQuiz().getQuizType().toString(),
                         questionEntity.getQuestionText(),
                         questionEntity.getScore(), true, quizResponseEntity.getUserId())));
                 totalScore += questionEntity.getScore();
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), questionEntity.getScore());
             } else {
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), 0d);
-                analytics.debug("{}", gson.toJson(new LogQuestionModel(questionEntity.getId(), quizResponseEntity.getQuiz().getId(), quizResponseEntity.getQuiz().getQuizType().toString(),
+                analytics.debug("{}", gson.toJson(new LogQuestionModel(quizResponseEntity.getQuiz().getName(), quizResponseEntity.getQuiz().getQuizType().toString(),
                         questionEntity.getQuestionText(),
                         questionEntity.getScore(), false, quizResponseEntity.getUserId())));
             }
@@ -160,7 +159,7 @@ public class QuizResultService {
 
     private boolean areAnswersCorrect(List<Integer> option_responses, List<Integer> validAnswers) {
         boolean result = true;
-        if (option_responses.size() != validAnswers.size()){
+        if (option_responses.size() != validAnswers.size()) {
             result = false;
         }
         for (Integer i : option_responses) {
@@ -176,9 +175,9 @@ public class QuizResultService {
     }
 
     public List<ResultEntity> getQuizResultsForStudent(String student_id) {
-        List<ResultEntity> resultEntities= new ArrayList<>();
+        List<ResultEntity> resultEntities = new ArrayList<>();
         List<QuizResponseEntity> quizResponses = quizResponseEntityDao.findByUserId(student_id);
-        for (QuizResponseEntity qre : quizResponses){
+        for (QuizResponseEntity qre : quizResponses) {
             if (qre.isCorrected()) {
                 ResultEntity r = resultEntityDao.findByQuizResponse(qre);
                 if (r != null) {
@@ -189,17 +188,18 @@ public class QuizResultService {
         return resultEntities;
     }
 
-    public List<ResultEntity> getQuizResultsByProfessor(String proffId){
-        List<ResultEntity> resultEntities= new ArrayList<>();
+    public List<ResultEntity> getQuizResultsByProfessor(String proffId) {
+        List<ResultEntity> resultEntities = new ArrayList<>();
         List<QuizEntity> quizesByProfessor = quizEntityDao.findByCreatorId(proffId);
         quizesByProfessor
                 .stream()
                 .forEach(quizEntity -> quizResponseEntityDao.findByQuiz(quizEntity)
-                .stream()
-                .filter(quizResponseEntity -> quizResponseEntity.isCorrected())
-                .forEach(qre -> resultEntities.add(resultEntityDao.findByQuizResponse(qre))));
+                        .stream()
+                        .filter(quizResponseEntity -> quizResponseEntity.isCorrected())
+                        .forEach(qre -> resultEntities.add(resultEntityDao.findByQuizResponse(qre))));
         return resultEntities;
     }
+
     public QuizStudentResultResponse mapResultResponse(ResultEntity quiz_result, String student_id) {
         QuizStudentResultResponse result = new QuizStudentResultResponse();
         result.setPassed(quiz_result.isPassed());
@@ -227,6 +227,7 @@ public class QuizResultService {
         return result;
 
     }
+
     public AnswerEntity getAnswerEntity(QuestionEntity questionEntity, AnsweredQuestion answeredQuestion, String student_id) {
         AnswerEntity answerEntity = answerService.getAnswerByQuestion(questionEntity, student_id);
         Answer answer = new Answer();
@@ -265,7 +266,7 @@ public class QuizResultService {
         quizResponseEntity.setTime(quiz.getTimer() + 1);
         quizResponseEntity.setWasFinishedInTime(false);
         QuizResponseEntity saved = quizResponseEntityDao.save(quizResponseEntity);
-        ResultEntity resultEntity  = new ResultEntity();
+        ResultEntity resultEntity = new ResultEntity();
         resultEntity.setQuizResponse(saved);
         resultEntity.setExtraFeedback("Be faster next time");
         resultEntity.setTotalDuration(quiz.getTimer() + 1);

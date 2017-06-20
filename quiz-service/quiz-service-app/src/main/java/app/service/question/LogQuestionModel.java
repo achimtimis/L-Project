@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LogQuestionModel {
 
-    private Long question_id;
-    private Long quiz_id;
+    private String quiz_name;
     private String quiz_type;
     private String questionText;
     private double qustionScore;
