@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,8 +27,13 @@ public class QuizToCorrectRequest {
 
     private int time;
 
+    private double minScoreToPass;
+
     private double score;
 
+    private double totalScore;
+
+    @JsonProperty(value = "isPassed")
     private boolean isPassed;
 
     private String extraFeedback;

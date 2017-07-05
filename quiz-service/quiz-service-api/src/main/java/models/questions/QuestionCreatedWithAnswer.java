@@ -1,5 +1,6 @@
 package models.questions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class QuestionCreatedWithAnswer {
 
     private List<Integer> correctAnswers;
 
+    @JsonProperty(value = "isInput")
     private boolean isInput;
 
     private double score;

@@ -1,10 +1,12 @@
 package app.service.question;
 
+import app.domain.answers.AnswerEntity;
 import app.domain.answers.QuizResponseEntity;
 import app.domain.questions.QuizEntity;
 import app.domain.results.ResultEntity;
 import app.repository.IQuizEntityDao;
 import app.repository.IQuizResponseEntityDao;
+import models.Answer;
 import models.QuizRequest;
 import models.QuizStudentResultResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +65,16 @@ public class QuizService {
         }
         return result;
 
+    }
+    private Answer getAnswerModel(AnswerEntity answerEntity) {
+        Answer answer = new Answer();
+        answer.setId(answerEntity.getId());
+        answer.setQuestionId(answerEntity.getQuizQuestion().getId());
+        answer.setUserId(answerEntity.getCiamUserId());
+        answer.setInputResponse(answerEntity.getInput_response());
+        answer.setChosenOptions(answerEntity.getOption_responses());
+        answer.setQuestionText(answerEntity.getQuizQuestion().getQuestionText());
+        return answer;
     }
 
 

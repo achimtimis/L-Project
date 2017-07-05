@@ -131,25 +131,27 @@ public class QuizResultService {
             QuestionEntity questionEntity = answer.getQuizQuestion();
             QuestionCorrectAnswer questionCorrectAnswer = questionEntity.getQuestionCorrectAnswer();
             if (areAnswersCorrect(answer.getOption_responses(), questionCorrectAnswer.getValidAnswers())) {
-
                 analytics.debug("{}", gson.toJson(new LogQuestionModel(quizResponseEntity.getQuiz().getName(), quizResponseEntity.getQuiz().getQuizType().toString(),
                         questionEntity.getQuestionText(),
-                        questionEntity.getScore(), true, quizResponseEntity.getUserId())));
+                        questionEntity.getScore(), true, quizResponseEntity.getUserId(), quizResponseEntity.getQuiz().getCreatorId())));
                 totalScore += questionEntity.getScore();
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), questionEntity.getScore());
             } else {
                 resultEntity.getScorePerQuestion().put(questionEntity.getId(), 0d);
                 analytics.debug("{}", gson.toJson(new LogQuestionModel(quizResponseEntity.getQuiz().getName(), quizResponseEntity.getQuiz().getQuizType().toString(),
                         questionEntity.getQuestionText(),
-                        questionEntity.getScore(), false, quizResponseEntity.getUserId())));
+                        questionEntity.getScore(), false, quizResponseEntity.getUserId(), quizResponseEntity.getQuiz().getCreatorId())));
             }
         }
 
         resultEntity.setQuizResponse(quizResponseEntity);
-        resultEntity.setExtraFeedback("good job");
         resultEntity.setTotalScore(totalScore);
         if (totalScore >= quizResponseEntity.getQuiz().getMinimumScoreToPass()) {
             resultEntity.setPassed(true);
+            resultEntity.setExtraFeedback("good job");
+        } else {
+            resultEntity.setPassed(false);
+            resultEntity.setExtraFeedback("quiz failed");
         }
         quizResponseEntity.setCorrected(true);
         quizResponseEntityDao.saveAndFlush(quizResponseEntity);
@@ -204,7 +206,7 @@ public class QuizResultService {
         QuizStudentResultResponse result = new QuizStudentResultResponse();
         result.setPassed(quiz_result.isPassed());
         result.setId(quiz_result.getId());
-        result.setTotalScore(quiz_result.getTotalScore());
+        result.setTotalScore(quiz_result.getQuizResponse().getQuiz().getTotalScore());
         result.setScore(quiz_result.getTotalScore()); //todo ?
         result.setCorrected(true);
         result.setQuiz_name(quiz_result.getQuizResponse().getQuiz().getName());
@@ -222,6 +224,7 @@ public class QuizResultService {
             answeredQuestion.setObservation(quiz_result.getObservations().get(question_id));
             answeredQuestions.add(answeredQuestion);
         }
+        result.setTotalDuration(quiz_result.getQuizResponse().getTime());
         result.setAnsweredQuestions(answeredQuestions);
         result.setExtraFeedback(quiz_result.getExtraFeedback());
         return result;
@@ -276,7 +279,17 @@ public class QuizResultService {
         resultEntity.setRecomandations("Be faser next time");
         resultEntity.setPassed(false);
         resultEntityDao.save(resultEntity);
+        logQuizFailed("Quiz not finished in time", resultEntity);
     }
+
+    private void logQuizFailed(String message, ResultEntity resultEntity) {
+        Gson gson = new Gson();
+        analytics.debug("{}", gson.toJson(new LogQuestionModel(resultEntity.getQuizResponse().getQuiz().getName(),
+                resultEntity.getQuizResponse().getQuiz().getQuizType().toString(),
+                message, 0, false, resultEntity.getQuizResponse().getUserId(), resultEntity.getQuizResponse().getQuiz().getCreatorId())));
+
+    }
+
 
     private AnswerWithQuestion getAnswerWithQuestionModel(AnswerEntity answerEntity) {
         QuestionEntity questionEntity = questionService.getQuestionById(answerEntity.getQuizQuestion().getId());
@@ -298,10 +311,30 @@ public class QuizResultService {
         quizToCorrect.setQuizId(quizResponseEntity.getQuiz().getId());
         quizToCorrect.setAnswerList(quizResponseEntity.getAnswers().stream()
                 .map(answerEntity -> getAnswerWithQuestionModel(answerEntity)).collect(Collectors.toList()));
+        quizToCorrect.setMinScoreToPass(quizResponseEntity.getQuiz().getMinimumScoreToPass());
+        quizToCorrect.setTotalScore(quizResponseEntity.getQuiz().getTotalScore());
         return quizToCorrect;
     }
 
     public QuizResponseEntity getQuizToCorrect(Long responseid) {
         return this.quizResponseEntityDao.findOne(responseid);
+    }
+
+    public void logInputQuizResult(ResultEntity resultEntity) {
+        Gson gson = new Gson();
+        QuizResponseEntity quizResponseEntity = resultEntity.getQuizResponse();
+        for (QuestionEntity questionEntity : quizResponseEntity.getQuiz().getQuiz_questions()) {
+            QuestionCorrectAnswer questionCorrectAnswer = questionEntity.getQuestionCorrectAnswer();
+            if (questionEntity.getScore() == resultEntity.getScorePerQuestion().get(questionEntity.getId())) {
+                analytics.debug("{}", gson.toJson(new LogQuestionModel(quizResponseEntity.getQuiz().getName(), quizResponseEntity.getQuiz().getQuizType().toString(),
+                        questionEntity.getQuestionText(),
+                        questionEntity.getScore(), true, quizResponseEntity.getUserId(), quizResponseEntity.getQuiz().getCreatorId())));
+            } else {
+                analytics.debug("{}", gson.toJson(new LogQuestionModel(quizResponseEntity.getQuiz().getName(), quizResponseEntity.getQuiz().getQuizType().toString(),
+                        questionEntity.getQuestionText(),
+                        questionEntity.getScore(), false, quizResponseEntity.getUserId(), quizResponseEntity.getQuiz().getCreatorId())));
+            }
+
+        }
     }
 }

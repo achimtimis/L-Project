@@ -74,6 +74,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
             questionEntity.setQuestionCorrectAnswer(qa);
             questions.add(questionEntity);
         }
+        quizEntity.setTotalScore(q.getTotalScore());
         quizEntity.setQuiz_questions(questions);
         quizEntity.setTimer(q.getTimer());
         quizEntity.setMinimumScoreToPass(q.getMinScoreToPass());
@@ -141,7 +142,7 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
         quizRequest.setQuestions(questions);
         quizRequest.setTopic(quizEntity.getTopic());
         quizRequest.setMinScoreToPass(quizEntity.getMinimumScoreToPass());
-        quizRequest.setTotalScore(quizEntity.getMinimumScoreToPass());
+        quizRequest.setTotalScore(quizEntity.getTotalScore());
         return quizRequest;
     }
 
@@ -251,6 +252,8 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
                 scorePerQuestion.put(answer.getQuestion().getId(), answer.getGraded_score());
                 observations.put(answer.getQuestion().getId(), answer.getObservation());
             }
+            resultEntity.setScorePerQuestion(scorePerQuestion);
+            resultEntity.setObservations(observations);
             resultEntity.setExtraFeedback(quizToCorrectRequest.getExtraFeedback());
             quizResponseEntity.setCorrected(true);
             quizResultService.saveResult(resultEntity);
@@ -268,28 +271,19 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
                 scorePerQuestion.put(answer.getQuestion().getId(), answer.getGraded_score());
                 observations.put(answer.getQuestion().getId(), answer.getObservation());
             }
+            resultEntity.setScorePerQuestion(scorePerQuestion);
+            resultEntity.setObservations(observations);
             resultEntity.setExtraFeedback(quizToCorrectRequest.getExtraFeedback());
             quizResponseEntity.setCorrected(true);
             QuizResponseEntity saved = quizService.saveOrUpdateQuizResponse(quizResponseEntity);
             resultEntity.setQuizResponse(saved);
             resultEntity = quizResultService.saveResult(resultEntity);
+            this.quizResultService.logInputQuizResult(resultEntity);
 
         }
 
     }
 
-
-
-    private Answer getAnswerModel(AnswerEntity answerEntity) {
-        Answer answer = new Answer();
-        answer.setId(answerEntity.getId());
-        answer.setQuestionId(answerEntity.getQuizQuestion().getId());
-        answer.setUserId(answerEntity.getCiamUserId());
-        answer.setInputResponse(answerEntity.getInput_response());
-        answer.setChosenOptions(answerEntity.getOption_responses());
-        answer.setQuestionText(answerEntity.getQuizQuestion().getQuestionText());
-        return answer;
-    }
 
 
 }

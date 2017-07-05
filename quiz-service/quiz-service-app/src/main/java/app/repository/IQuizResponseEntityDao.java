@@ -19,5 +19,4 @@ public interface IQuizResponseEntityDao extends JpaRepository<QuizResponseEntity
 
     List<QuizResponseEntity> findByUserId(String student_id);
 
-    QuizToCorrectRequest findByIdAndUserId(Long id, String userId);
 }

@@ -40,6 +40,8 @@ public class QuizEntity {
 
     private double minimumScoreToPass;
 
+    private double totalScore;
+
     private String creatorId;
 
     private boolean isTimed;
