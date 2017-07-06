@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -113,7 +110,18 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
     @Override
     public QuizRequest getQuizById(@PathVariable(value = "id") Long id) {
         QuizEntity quizEntity = quizService.findOne(id);
-        return getQuizRequestModel(quizEntity);
+        QuizRequest quizRequest = getQuizRequestModel(quizEntity);
+        return shuffleQuiz(quizRequest);
+    }
+
+    private QuizRequest shuffleQuiz(QuizRequest quizRequest) {
+        List<Question>  questions = quizRequest.getQuestions();
+        Collections.shuffle(questions);
+        for (Question q: questions){
+            Collections.shuffle(q.getQuestionOptions());
+        }
+        quizRequest.setQuestions(questions);
+        return quizRequest;
     }
 
     private QuizRequest getQuizRequestModel(QuizEntity quizEntity) {
@@ -284,6 +292,10 @@ public class QuizManagerEndpoint implements IQuizManagerEndpoint {
 
     }
 
+    @Override
+    public QuizStudentResultResponse getQuizResutByid(@PathVariable(value = "resultid") Long resultid) {
+        return this.quizResultService.getQuizResultById(resultid);
+    }
 
 
 }

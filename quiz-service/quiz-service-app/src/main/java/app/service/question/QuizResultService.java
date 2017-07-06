@@ -227,6 +227,7 @@ public class QuizResultService {
         result.setTotalDuration(quiz_result.getQuizResponse().getTime());
         result.setAnsweredQuestions(answeredQuestions);
         result.setExtraFeedback(quiz_result.getExtraFeedback());
+        result.setStudent(quiz_result.getQuizResponse().getUserId());
         return result;
 
     }
@@ -336,5 +337,10 @@ public class QuizResultService {
             }
 
         }
+    }
+
+    public QuizStudentResultResponse getQuizResultById(Long resultid) {
+        ResultEntity resultEntity = this.resultEntityDao.findOne(resultid);
+        return mapResultResponse(resultEntity, resultEntity.getQuizResponse().getUserId());
     }
 }

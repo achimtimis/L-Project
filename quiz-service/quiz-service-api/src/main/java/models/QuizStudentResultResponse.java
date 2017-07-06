@@ -29,5 +29,6 @@ public class QuizStudentResultResponse {
     private boolean isCorrected;
     private String extraFeedback;
     private int totalDuration;
+    private String student;
 
 }

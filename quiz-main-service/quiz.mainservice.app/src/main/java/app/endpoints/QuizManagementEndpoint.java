@@ -118,5 +118,10 @@ public class QuizManagementEndpoint implements IQuizManagerEndpoint {
         quizServiceFeign.saveQuizResponseEvaluation(quizToCorrectRequest);
     }
 
+    @Override
+    public QuizStudentResultResponse getQuizResutByid(@PathVariable("resultid") Long resultid) {
+        return quizServiceFeign.getQuizResutByid(resultid);
+    }
+
 
 }

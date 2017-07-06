@@ -62,4 +62,8 @@ public interface IQuizManagerEndpoint {
 
     @RequestMapping(value = "quizes/tograde", method = RequestMethod.POST)
     void saveQuizResponseEvaluation(@RequestBody QuizToCorrectRequest quizToCorrectRequest);
+
+    @RequestMapping(value = "quizes/result/{resultid}")
+    QuizStudentResultResponse getQuizResutByid(@PathVariable(value = "resultid") Long resultid);
+
 }
